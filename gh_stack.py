@@ -21,8 +21,8 @@ import subprocess
 
 RequestFields = 'number,headRefName,baseRefName,url,title,author'
 
-def getPullRequest(PR):
-    Dump = subprocess.run(['gh', 'pr', 'view', Args.pr,
+def getPullRequest(pr):
+    Dump = subprocess.run(['gh', 'pr', 'view', pr,
                            '--json', RequestFields],
                           capture_output=True)
     if Dump.returncode:
@@ -91,15 +91,20 @@ def printAllStacksForAuthor(Author):
         Stacks = NewStacks
     printReversedStackList(Stacks, Pulls)
 
-parser = argparse.ArgumentParser(description='Show all stacks of pull requests.')
-parser.add_argument('--author', default="@me",
-                    help='Show stacks for specified author')
-parser.add_argument('--pr', help='Show the stack headed by specified PR')
-Args = parser.parse_args()
+def main():
+    parser = argparse.ArgumentParser(description='Show all stacks of pull requests.')
+    parser.add_argument('--author', default="@me",
+                        help='Show stacks for specified author')
+    parser.add_argument('--pr', help='Show the stack headed by specified PR')
+    Args = parser.parse_args()
 
-if Args.pr:
-    Stack, Pulls = getStackForPullRequest(Args.pr)
-    printReversedStack(Stack, Pulls)
-    exit()
+    if Args.pr:
+        Stack, Pulls = getStackForPullRequest(Args.pr)
+        printReversedStack(Stack, Pulls)
+        return 0
 
-printAllStacksForAuthor(Args.author)
+    printAllStacksForAuthor(Args.author)
+    return 0
+
+if __name__ == "__main__":
+    exit(main())
