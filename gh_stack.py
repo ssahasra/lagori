@@ -79,16 +79,21 @@ def printAllStacksForAuthor(Author):
 
     Stacks = dict()
     while TS.is_active():
-        NewStacks = dict()
+        # Set of base PRs on which atleast one PR depends.
+        # Final stack list will only contain the top PRs.
+        UsedBases = set()
         for Head in TS.get_ready():
             TS.done(Head)
             Base = Pulls[Head]['baseRefName']
             if Base in Stacks:
-                NewStacks[Head] = Stacks[Base] + [Head]
+                Stacks[Head] = Stacks[Base] + [Head]
+                UsedBases.add(Base)
             else:
-                NewStacks[Head] = [Head]
+                Stacks[Head] = [Head]
+        for Base in UsedBases:
+            if Base in Stacks:
+                Stacks.pop(Base)
 
-        Stacks = NewStacks
     printReversedStackList(Stacks, Pulls)
 
 def main():
