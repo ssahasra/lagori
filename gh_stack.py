@@ -54,12 +54,21 @@ def getPullRequestsForAuthor(Author: str) -> Dict[str, Dict[str, Any]]:
     Pulls = { x['headRefName']:x for x in json.loads(Dump.stdout) }
     return Pulls
 
-def printReversedStack(Stack: List[str], Pulls: Dict[str, Dict[str, Any]]):
-    for Head in reversed(Stack):
+def printStack(Stack: List[str], Pulls: Dict[str, Dict[str, Any]]):
+    # Use functional style to print the stack
+    for Head in Stack:
         PR = Pulls[Head]
-        print(f"  - {PR['title']} [#{PR['number']}]")
-        print(f"    {Head}")
-        print(f"    {PR['url']}\n")
+        if Args.minimal:
+            print(f"  - [#{PR['number']}] {PR['title']}")
+        else:
+            print(f"  - {PR['title']} [#{PR['number']}]")
+            print(f"    {Head}")
+            print(f"    {PR['url']}\n")
+    if Args.minimal:
+        print("")
+
+def printReversedStack(Stack: List[str], Pulls: Dict[str, Dict[str, Any]]):
+    printStack(Stack[::-1], Pulls)
 
 def printReversedStackList(Stacks: Dict[str, List[str]], Pulls: Dict[str, Dict[str, Any]]):
     for i, Stack in enumerate(Stacks.values(), 1):
@@ -106,15 +115,17 @@ def printAllStacksForAuthor(Author):
             if Base in Stacks:
                 Stacks.pop(Base)
 
-    print(f"Stacks for author {Author}:\n")
-    print(Stacks)
     printReversedStackList(Stacks, Pulls)
+
+Args: Any  = None
 
 def main():
     parser = argparse.ArgumentParser(description='Show all stacks of pull requests.')
     parser.add_argument('--author', default="@me",
                         help='Show stacks for specified author')
     parser.add_argument('--pr', help='Show the stack headed by specified PR')
+    parser.add_argument('--minimal', action='store_true', help='Print PRs only on one line')
+    global Args
     Args = parser.parse_args()
 
     if Args.pr:
