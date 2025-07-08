@@ -19,10 +19,11 @@ import graphlib
 import json
 import subprocess
 import sys
+from typing import Dict, List, Any, Tuple
 
 RequestFields = 'number,headRefName,baseRefName,url,title,author'
 
-def getPullRequest(pr):
+def getPullRequest(pr: str) -> Dict[str, Any]:
     try:
         Dump = subprocess.run(['gh', 'pr', 'view', pr,
                             '--json', RequestFields],
@@ -37,7 +38,7 @@ def getPullRequest(pr):
     PR = json.loads(Dump.stdout)
     return PR
 
-def getPullRequestsForAuthor(Author):
+def getPullRequestsForAuthor(Author: str) -> Dict[str, Dict[str, Any]]:
     try:
         Dump = subprocess.run(['gh', 'pr', 'list',
                             '--author', Author,
@@ -53,15 +54,16 @@ def getPullRequestsForAuthor(Author):
     Pulls = { x['headRefName']:x for x in json.loads(Dump.stdout) }
     return Pulls
 
-def printReversedStack(Stack, Pulls):
+def printReversedStack(Stack: List[str], Pulls: Dict[str, Dict[str, Any]]):
     for Head in reversed(Stack):
         PR = Pulls[Head]
         print(f"  - {PR['title']} [#{PR['number']}]")
         print(f"    {Head}")
         print(f"    {PR['url']}\n")
 
-def printReversedStackList(Stacks, Pulls):
+def printReversedStackList(Stacks: Dict[str, List[str]], Pulls: Dict[str, Dict[str, Any]]):
     Count = 1
+    print(type(Stacks.keys()))
     for Stack in Stacks.values():
         print(f'Stack {Count}:\n')
         Count += 1
@@ -107,6 +109,8 @@ def printAllStacksForAuthor(Author):
             if Base in Stacks:
                 Stacks.pop(Base)
 
+    print(f"Stacks for author {Author}:\n")
+    print(Stacks)
     printReversedStackList(Stacks, Pulls)
 
 def main():
