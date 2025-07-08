@@ -62,7 +62,6 @@ def printReversedStack(Stack: List[str], Pulls: Dict[str, Dict[str, Any]]):
         print(f"    {PR['url']}\n")
 
 def printReversedStackList(Stacks: Dict[str, List[str]], Pulls: Dict[str, Dict[str, Any]]):
-    print(type(Stacks.keys()))
     for i, Stack in enumerate(Stacks.values(), 1):
         print(f'Stack {i}:\n')
         printReversedStack(Stack, Pulls)
