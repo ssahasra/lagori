@@ -62,11 +62,9 @@ def printReversedStack(Stack: List[str], Pulls: Dict[str, Dict[str, Any]]):
         print(f"    {PR['url']}\n")
 
 def printReversedStackList(Stacks: Dict[str, List[str]], Pulls: Dict[str, Dict[str, Any]]):
-    Count = 1
     print(type(Stacks.keys()))
-    for Stack in Stacks.values():
-        print(f'Stack {Count}:\n')
-        Count += 1
+    for i, Stack in enumerate(Stacks.values(), 1):
+        print(f'Stack {i}:\n')
         printReversedStack(Stack, Pulls)
 
 def getStackForPullRequest(RequestId):
@@ -129,4 +127,4 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    exit(main())
+    main()
