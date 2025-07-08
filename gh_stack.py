@@ -18,25 +18,38 @@ import argparse
 import graphlib
 import json
 import subprocess
+import sys
 
 RequestFields = 'number,headRefName,baseRefName,url,title,author'
 
 def getPullRequest(pr):
-    Dump = subprocess.run(['gh', 'pr', 'view', pr,
-                           '--json', RequestFields],
-                          capture_output=True)
+    try:
+        Dump = subprocess.run(['gh', 'pr', 'view', pr,
+                            '--json', RequestFields],
+                            capture_output=True)
+    except FileNotFoundError:
+        exit("gh CLI is not installed or not found in PATH")
     if Dump.returncode:
-        exit("Unable to fetch specified pull request")
+        print("Unable to fetch specified pull request")
+        print("Details:")
+        print(Dump.stderr.decode('utf-8'))
+        sys.exit(1)
     PR = json.loads(Dump.stdout)
     return PR
 
 def getPullRequestsForAuthor(Author):
-    Dump = subprocess.run(['gh', 'pr', 'list',
-                           '--author', Author,
-                           '--json', RequestFields],
-                          capture_output=True)
+    try:
+        Dump = subprocess.run(['gh', 'pr', 'list',
+                            '--author', Author,
+                            '--json', RequestFields],
+                            capture_output=True)
+    except FileNotFoundError:
+        exit("gh CLI is not installed or not found in PATH")
     if Dump.returncode:
-        exit("Unable to fetch pull request for specified author")
+        print(f"Unable to fetch pull requests for author {Author}")
+        print("Details:")
+        print(Dump.stderr.decode('utf-8'))
+        sys.exit(1)
     Pulls = { x['headRefName']:x for x in json.loads(Dump.stdout) }
     return Pulls
 
